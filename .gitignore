@@ -4,4 +4,4 @@ __pycache__/
 mlflow.db
 mlflow.db-*
 mlflow_artifacts/
-mlruns/
+mlruns//wine_model.onnx
