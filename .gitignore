@@ -6,3 +6,4 @@ mlflow.db-*
 mlflow_artifacts/
 mlruns/
 /wine_model.onnx
+.pytest_cache/
