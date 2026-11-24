@@ -35,7 +35,7 @@ def test_predict_success(client, payload):
     result = response.json()
 
     assert result["predicted_class"] == 0
-    assert result["model_status"] == "wine_onnx_v1.0"
+    assert result["model_status"] == "wine_onnx_v1.1_updated"
 
     probabilities = result["probabilities"]
     assert len(probabilities) == 3

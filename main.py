@@ -103,5 +103,5 @@ def predict(data: WineRequestData):
     return {
         "predicted_class": int(labels[0]),
         "probabilities": probabilities[0].tolist(),
-        "model_status": "wine_onnx_v1.0",
+        "model_status": "wine_onnx_v1.1_updated",
     }

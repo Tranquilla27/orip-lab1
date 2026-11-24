@@ -1,0 +1,7 @@
+services:
+  wine-api:
+    image: tranquillasunset/wine_api_service:${WINE_IMAGE_TAG}
+    container_name: wine_prod_service
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
