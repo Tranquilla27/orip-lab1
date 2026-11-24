@@ -33,5 +33,18 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - name: Check stage order
-        run: echo "Test stage started after lint"
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install API and test dependencies
+        run: |
+          python -m pip install -r requirements-api.txt
+          python -m pip install pytest httpx
+
+      - name: Run API tests
+        run: python -m pytest test_main.py -v
