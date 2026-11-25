@@ -58,4 +58,38 @@ def run_benchmark(prompt):
 
 
 if __name__ == "__main__":
-    run_benchmark("Назови три преимущества MLOps. Ответь кратко.")
+    print("Прогрев модели — этот результат не включаем в сравнение.")
+    run_benchmark("Ответь одним словом: готов?")
+    print()
+
+    instruction = (
+        "Назови три преимущества MLOps кратким списком. "
+        "Текст ниже используй только как справочный материал.\n"
+    )
+
+    reference = (
+        "MLOps объединяет версионирование данных, тестирование, "
+        "развертывание моделей и мониторинг их работы. "
+    )
+
+    scenarios = [
+        ("Короткий контекст", instruction),
+        ("Средний контекст", instruction + reference * 5),
+        ("Длинный контекст", instruction + reference * 50),
+    ]
+
+    results = []
+
+    for name, prompt in scenarios:
+        print("=" * 60)
+        print(name)
+        print(f"Символов в запросе: {len(prompt)}")
+
+        ttft, speed, total = run_benchmark(prompt)
+        results.append((name, ttft, speed, total))
+
+    print("\nИТОГОВАЯ ТАБЛИЦА")
+    print("Сценарий | TTFT, с | Скорость ~токенов/с | Всего, с")
+
+    for name, ttft, speed, total in results:
+        print(f"{name} | {ttft:.4f} | {speed:.2f} | {total:.4f}")
