@@ -1,9 +1,16 @@
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    Counter,
+    Histogram,
+    generate_latest,
+)
 from pydantic import BaseModel, ConfigDict, Field
 from contextlib import asynccontextmanager
 from pathlib import Path
+from time import perf_counter
 
 import onnxruntime as ort
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 import numpy as np
 
 
@@ -70,9 +77,27 @@ app = FastAPI(
 )
 
 
+MODEL_VERSION = "wine_onnx_v1.1_updated"
+
+PREDICTIONS_COUNTER = Counter(
+    "predictions_total",
+    "Number of successful predictions",
+    ["predicted_class", "model_version"],
+)
+
+INFERENCE_LATENCY = Histogram(
+    "inference_duration_seconds",
+    "Time spent preparing input and running inference",
+    buckets=(
+        0.001, 0.005, 0.01, 0.025,
+        0.05, 0.1, 0.25, 0.5, 1.0,
+    ),
+)
+
 @app.post("/v1/predict", response_model=WineResponseData)
 def predict(data: WineRequestData):
     # Порядок признаков должен совпадать с порядком при обучении.
+    start_time = perf_counter()
     input_array = np.array(
         [[
             data.alcohol,
@@ -100,8 +125,25 @@ def predict(data: WineRequestData):
         {input_name: input_array},
     )
 
+    predicted_class = int(labels[0])
+
+    duration = perf_counter() - start_time
+    INFERENCE_LATENCY.observe(duration)
+
+    PREDICTIONS_COUNTER.labels(
+        predicted_class=str(predicted_class),
+        model_version=MODEL_VERSION,
+    ).inc()
+
     return {
-        "predicted_class": int(labels[0]),
+        "predicted_class": predicted_class,
         "probabilities": probabilities[0].tolist(),
-        "model_status": "wine_onnx_v1.1_updated",
+        "model_status": MODEL_VERSION,
     }
+
+@app.get("/metrics")
+def metrics():
+    return Response(
+        content=generate_latest(),
+        headers={"Content-Type": CONTENT_TYPE_LATEST},
+    )
