@@ -8,3 +8,4 @@ mlruns/
 .pytest_cache/
 venv-drift/
 /data_drift_report.html
+venv-llm/

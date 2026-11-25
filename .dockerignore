@@ -9,3 +9,4 @@ mlflow_artifacts/
 mlruns/
 data/
 venv-drift/
+venv-llm/
